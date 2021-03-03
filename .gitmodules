@@ -1,1 +1,10 @@
 
+[submodule "Addons/Shared Utils"]
+	path = Addons/Shared Utils
+	url = https://github.com/NeqsTech/nightfall-shared-utils
+[submodule "Addons/Servers Utils"]
+	path = Addons/Servers Utils
+	url = https://github.com/NeqsTech/nightfall-servers-utils
+[submodule "Addons/Client Utils"]
+	path = Addons/Client Utils
+	url = https://github.com/NeqsTech/nightfall-clients-utils
