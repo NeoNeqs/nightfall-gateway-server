@@ -1,5 +1,6 @@
 using Godot;
 
+using ClientsUtils.Scripts.Logging;
 using ClientsUtils.Scripts.Services;
 
 namespace GatewayServer.Scripts.AutoLoad
@@ -15,13 +16,15 @@ namespace GatewayServer.Scripts.AutoLoad
         public NetworkedClient() : base()
         {
             _singleton = this;
-            //clientPeer.SetDtlsCertificate(ResourceLoader.Load<X509Certificate>("res://Resources/DTLS/basic.crt"));
         }
 
         public override void _EnterTree()
         {
-            base._EnterTree();
-
+            var error = SetupDTLS("user://DTLS");
+            if (error != Error.Ok)
+            {
+                ClientLogger.GetLogger().Error($"An error has occurred while setting up DTLS. Error: {error}");
+            }
             GetTree().Connect("connection_failed", this, nameof(ConnetionFailed));
             GetTree().Connect("connected_to_server", this, nameof(ConnectionSuccessful));
             GetTree().Connect("server_disconnected", this, nameof(ServerDisconnected));
@@ -29,24 +32,39 @@ namespace GatewayServer.Scripts.AutoLoad
 
         public override void _Ready()
         {
-            _port = ClientConfiguration.Singleton.GetPort(4445);
-            _ipAddress = ClientConfiguration.Singleton.GetIpAddress("192.168.100.103");
-            CreateClient(_ipAddress, _port);
+            _port = ClientConfiguration.Singleton.GetPort(4444);
+            _ipAddress = ClientConfiguration.Singleton.GetIpAddress("localhost");
+            var creationError = CreateClient(_ipAddress, _port);
+            if (creationError != Error.Ok)
+            {
+                ClientLogger.GetLogger().Error($"Could not connect to {_ipAddress}:{_port}");
+                GetTree().Quit(-(int)creationError);
+            }
         }
 
         private void ConnetionFailed()
         {
-            //Logger.Client.Error($"Connection to {_ipAddress}:{_port} failed!");
+            ClientLogger.GetLogger().Error($"Connection to {_ipAddress}:{_port} failed!");
         }
 
         private void ConnectionSuccessful()
         {
-            //Logger.Client.Debug($"Successfully conected to {_ipAddress}:{_port}");
+            ClientLogger.GetLogger().Verbose($"Successfully conected to {_ipAddress}:{_port}");
         }
 
         private void ServerDisconnected()
         {
-            //Logger.Client.Warn($"Disconnected from {_ipAddress}:{_port}.");
+            ClientLogger.GetLogger().Warn($"Disconnected from {_ipAddress}:{_port}.");
+        }
+
+        protected override string GetCryptoKeyName()
+        {
+            throw new System.NotSupportedException("CryptoKey can't be used with a client.");
+        }
+
+        protected override string GetCertificateName()
+        {
+            return "ag.crt";
         }
     }
 }
