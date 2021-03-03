@@ -11,8 +11,12 @@ config_version=4
 [application]
 
 config/name="NightFall Gateway Server"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://Scenes/Main/Main.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Logger="*res://Addons/Shared Utils/Scripts/Logging/Logger.cs"
 
 [physics]
 
