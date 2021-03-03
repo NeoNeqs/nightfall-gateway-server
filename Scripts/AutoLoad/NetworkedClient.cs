@@ -12,7 +12,7 @@ namespace GatewayServer.Scripts.AutoLoad
         private string _ipAddress;
         private int _port;
 
-        public NetworkedClient()
+        public NetworkedClient() : base()
         {
             _singleton = this;
             //clientPeer.SetDtlsCertificate(ResourceLoader.Load<X509Certificate>("res://Resources/DTLS/basic.crt"));
