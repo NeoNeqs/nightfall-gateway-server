@@ -22,6 +22,12 @@ ValidatorService="*res://Addons/Servers Utils/Scripts/Services/Validators/Valida
 ClientConfiguration="*res://Scripts/AutoLoad/ClientConfiguration.cs"
 NetworkedClient="*res://Scripts/AutoLoad/NetworkedClient.cs"
 
+[logging]
+
+file_logging/enable_file_logging=true
+file_logging/log_path="user://godot_logs/godot.log"
+file_logging/max_log_files=10
+
 [physics]
 
 common/enable_pause_aware_picking=true
