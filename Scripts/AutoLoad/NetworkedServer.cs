@@ -25,7 +25,7 @@ namespace GatewayServer.Scripts.AutoLoad
 
         public override void _Ready()
         {
-            var port = ServerConfiguration.Singleton.GetPort(4444);
+            var port = ServerConfiguration.Singleton.GetPort(4445);
             var maxClients = ServerConfiguration.Singleton.GetMaxClients(100);
             var error = CreateServer(port, maxClients);
             if (error != ErrorCode.Ok)
