@@ -1,5 +1,6 @@
 using Godot;
 
+using ClientsUtils.Scripts.Exceptions;
 using ClientsUtils.Scripts.Logging;
 using ClientsUtils.Scripts.Services;
 
@@ -9,9 +10,9 @@ namespace GatewayServer.Scripts.AutoLoad
     {
         private static NetworkedClient _singleton;
         public static NetworkedClient Singleton => _singleton;
-
         private string _ipAddress;
         private int _port;
+
 
         public NetworkedClient() : base()
         {
@@ -20,14 +21,8 @@ namespace GatewayServer.Scripts.AutoLoad
 
         public override void _EnterTree()
         {
-            var error = SetupDTLS("user://DTLS");
-            if (error != Error.Ok)
-            {
-                ClientLogger.GetLogger().Error($"An error has occurred while setting up DTLS. Error: {error}");
-            }
-            GetTree().Connect("connection_failed", this, nameof(ConnetionFailed));
-            GetTree().Connect("connected_to_server", this, nameof(ConnectionSuccessful));
-            GetTree().Connect("server_disconnected", this, nameof(ServerDisconnected));
+            base._EnterTree();
+            ConnectSignals(this);
         }
 
         public override void _Ready()
@@ -36,25 +31,22 @@ namespace GatewayServer.Scripts.AutoLoad
             _ipAddress = ClientConfiguration.Singleton.GetIpAddress("localhost");
             var creationError = CreateClient(_ipAddress, _port);
             if (creationError != Error.Ok)
-            {
-                ClientLogger.GetLogger().Error($"Could not connect to {_ipAddress}:{_port}");
-                GetTree().Quit(-(int)creationError);
-            }
+                throw new CantConnectToServerException(_ipAddress, _port);
         }
 
-        private void ConnetionFailed()
+        protected override void ConnetionFailed()
         {
-            ClientLogger.GetLogger().Error($"Connection to {_ipAddress}:{_port} failed!");
+            ClientLogger.GetSingleton().Error($"Connection to {_ipAddress}:{_port} failed!");
         }
 
-        private void ConnectionSuccessful()
+        protected override void ConnectionSuccessful()
         {
-            ClientLogger.GetLogger().Verbose($"Successfully conected to {_ipAddress}:{_port}");
+            ClientLogger.GetSingleton().Verbose($"Successfully conected to {_ipAddress}:{_port}");
         }
 
-        private void ServerDisconnected()
+        protected override void ServerDisconnected()
         {
-            ClientLogger.GetLogger().Warn($"Disconnected from {_ipAddress}:{_port}.");
+            ClientLogger.GetSingleton().Warn($"Disconnected from {_ipAddress}:{_port}.");
         }
 
         protected override string GetCryptoKeyName()
